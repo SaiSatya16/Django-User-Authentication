@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h2>Hi, {{ user.username }}!</h2>
+        <p>Welcome to your dashboard.</p>
+        <div class="mt-4">
+            <a href="{% url 'profile' %}" class="btn btn-primary">View Profile</a>
+            <a href="{% url 'change_password' %}" class="btn btn-secondary">Change Password</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
