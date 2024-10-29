@@ -1,0 +1,27 @@
+services:
+  web:
+    build: .
+    command: gunicorn auth_project.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - sqlite_data:/app/data
+      - static_volume:/app/staticfiles
+    expose:
+      - 8000
+    environment:
+      - DEBUG=0
+      - DJANGO_SECRET_KEY=your-production-secret-key
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+  
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/app/staticfiles
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+
+volumes:
+  sqlite_data:
+  static_volume:
