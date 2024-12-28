@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Generate Balance Proof{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Generate Balance Proof</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="proofForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="threshold" class="form-label">
+                                Minimum Balance Threshold (ETH)
+                            </label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="threshold" 
+                                   name="threshold"
+                                   step="0.000000000000000001"
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Generate Proof
+                        </button>
+                    </form>
+
+                    {% if proof %}
+                    <div class="mt-4">
+                        <h6>Generated Proof:</h6>
+                        <div class="bg-light p-3 rounded">
+                            <code>{{ proof }}</code>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('proofForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = 'Generating...';
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error generating proof: ' + error);
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Generate Proof';
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

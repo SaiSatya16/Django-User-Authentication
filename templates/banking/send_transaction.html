@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}Send Transaction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Send ETH</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="from_wallet" class="form-label">From Wallet</label>
+                            <select name="from_wallet" id="from_wallet" class="form-select" required>
+                                {% for wallet in wallets %}
+                                <option value="{{ wallet.address }}">
+                                    {{ wallet.address }} ({{ wallet.balance }} ETH)
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_to_address" class="form-label">To Address</label>
+                            {{ form.to_address }}
+                            {% if form.to_address.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.to_address.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Enter a valid Ethereum address</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_amount" class="form-label">Amount (ETH)</label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.amount.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Enter the amount of ETH to send</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Send Transaction</button>
+                            <a href="{% url 'banking:wallet_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+// Update available balance when wallet changes
+document.getElementById('from_wallet').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const balanceText = selectedOption.textContent.match(/\((.*?)\)/)[1];
+    document.getElementById('available-balance').textContent = balanceText;
+});
+</script>
+{% endblock %}
+{% endblock %}

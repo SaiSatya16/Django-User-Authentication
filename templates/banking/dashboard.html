@@ -1,0 +1,102 @@
+<!-- templates/banking/dashboard.html -->
+{% extends 'base.html' %}
+
+{% block title %}Wallet Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <!-- Wallets Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Your Wallets</h5>
+                    <form action="{% url 'banking:create_wallet' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-primary">New Wallet</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% if wallet_balances %}
+                        {% for wallet_info in wallet_balances %}
+                        <div class="wallet-item mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Wallet Address</h6>
+                                    <small class="text-muted">{{ wallet_info.wallet.address }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <h6 class="mb-1">Balance</h6>
+                                    <strong>{{ wallet_info.balance_formatted }} ETH</strong>
+                                    {% if wallet_info.fiat_value %}
+                                    <br>
+                                    <small class="text-muted">${{ wallet_info.fiat_value|floatformat:2 }} USD</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if wallet_info.error %}
+                            <div class="alert alert-warning mt-2 mb-0">
+                                {{ wallet_info.error }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center">No wallets found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Transactions</h5>
+                    <a href="{% url 'banking:transaction_history' %}" class="btn btn-sm btn-secondary">View All</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_transactions %}
+                        {% for tx in recent_transactions %}
+                        <div class="transaction-item mb-3 p-3 border rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ tx.amount }} ETH</h6>
+                                    <small class="text-muted">{{ tx.created_at|date:"M d, Y H:i" }}</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-{{ tx.status }}">
+                                        {{ tx.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="text-muted d-block">From: {{ tx.from_wallet.address }}</small>
+                                <small class="text-muted d-block">To: {{ tx.to_address }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center">No transactions found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'banking:send_transaction' %}" class="btn btn-primary me-2">Send ETH</a>
+            <a href="{% url 'banking:create_multisig' %}" class="btn btn-secondary me-2">Create Multi-Sig</a>
+            <a href="{% url 'banking:balance_proof' %}" class="btn btn-info">Generate Proof</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

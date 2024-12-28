@@ -1,22 +1,21 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate
 from django.contrib import messages
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from .forms import SignUpForm, CustomAuthenticationForm
-from django.contrib.auth.views import (
-    LoginView, PasswordChangeView, PasswordResetView,
-    PasswordResetConfirmView
-)
+from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
+from .forms import SignUpForm, CustomAuthenticationForm
+from django.contrib.auth.views import PasswordResetView, PasswordChangeView
+from .forms import ProfileUpdateForm
+from django.utils import timezone
 
 class CustomLoginView(LoginView):
     form_class = CustomAuthenticationForm
     template_name = 'accounts/login.html'
+    redirect_authenticated_user = True
+    
+    def get_success_url(self):
+        return reverse_lazy('banking:wallet_dashboard')
 
 def signup_view(request):
     if request.method == 'POST':
@@ -25,7 +24,7 @@ def signup_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, 'Registration successful!')
-            return redirect('dashboard')
+            return redirect('banking:wallet_dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -51,4 +50,25 @@ def dashboard_view(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'accounts/profile.html')
+    try:
+        if request.method == 'POST':
+            form = ProfileUpdateForm(request.POST, instance=request.user)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Profile updated successfully!')
+                return redirect('accounts:profile')
+        else:
+            form = ProfileUpdateForm(instance=request.user)
+        
+        
+        
+        context = {
+            'form': form,
+            'user': request.user,
+            'account_age': (timezone.now() - request.user.date_joined).days
+        }
+        return render(request, 'accounts/profile.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"Error loading profile: {str(e)}")
+        return redirect('accounts:dashboard')

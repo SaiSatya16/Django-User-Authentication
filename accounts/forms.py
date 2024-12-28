@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm, PasswordResetForm
 from .models import CustomUser
+from django.contrib.auth.forms import UserChangeForm
+from django.contrib.auth import get_user_model
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -27,3 +29,21 @@ class CustomAuthenticationForm(AuthenticationForm):
             except CustomUser.DoesNotExist:
                 raise forms.ValidationError("Invalid username or email.")
         return username
+
+
+
+
+
+
+class ProfileUpdateForm(UserChangeForm):
+    password = None  # Remove password field from form
+    
+    class Meta:
+        model = get_user_model()
+        fields = ('username', 'email', 'first_name', 'last_name')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }

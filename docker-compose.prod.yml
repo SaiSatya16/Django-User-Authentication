@@ -1,17 +1,24 @@
+# docker-compose.prod.yml
+version: '3.8'
+
 services:
   web:
     build: .
-    command: gunicorn auth_project.wsgi:application --bind 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             gunicorn auth_project.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
-      - sqlite_data:/app/data
       - static_volume:/app/staticfiles
+      - sqlite_data:/app/data
     expose:
       - 8000
     environment:
       - DEBUG=0
       - DJANGO_SECRET_KEY=your-production-secret-key
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+    restart: unless-stopped
   
   nginx:
     build: ./nginx

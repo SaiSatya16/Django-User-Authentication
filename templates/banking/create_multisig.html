@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Multi-Signature Transaction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Create Multi-Signature Transaction</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="from_wallet" class="form-label">From Wallet</label>
+                            <select name="from_wallet" id="from_wallet" class="form-select" required>
+                                {% for wallet in wallets %}
+                                <option value="{{ wallet.address }}">
+                                    {{ wallet.address }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="required_signatures" class="form-label">Required Signatures</label>
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="required_signatures" 
+                                   name="required_signatures"
+                                   value="2" 
+                                   min="2" 
+                                   required>
+                        </div>
+                        
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ field.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        
+                        <button type="submit" class="btn btn-primary">Create Transaction</button>
+                        <a href="{% url 'banking:wallet_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

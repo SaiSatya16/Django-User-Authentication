@@ -1,2 +1,8 @@
-Django>=5.1
-gunicorn>=21.2.0
+Django
+gunicorn
+web3
+eth-account
+python-dotenv
+django-web3-auth
+hexbytes
+cryptography

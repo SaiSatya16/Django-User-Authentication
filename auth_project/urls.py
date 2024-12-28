@@ -17,11 +17,16 @@ Including another URLconf
 # auth_project/urls.py
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
+from django.views.generic import RedirectView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    # Redirect root URL to login page
-    path('', lambda request: redirect('login'), name='home'),
+    path('accounts/', include('accounts.urls', namespace='accounts')),
+    path('banking/', include('banking.urls', namespace='banking')),
+    path('', RedirectView.as_view(url='/accounts/login/', permanent=False), name='home'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

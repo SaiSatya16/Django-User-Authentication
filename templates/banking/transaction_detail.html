@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Transaction Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Transaction Details</h5>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                    <div class="alert alert-warning">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Transaction Hash</dt>
+                        <dd class="col-sm-8">
+                            <small>{{ transaction.tx_hash }}</small>
+                        </dd>
+
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{{ transaction.status }}">
+                                {{ transaction.get_status_display }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">From</dt>
+                        <dd class="col-sm-8">
+                            <small>{{ transaction.from_wallet.address }}</small>
+                        </dd>
+
+                        <dt class="col-sm-4">To</dt>
+                        <dd class="col-sm-8">
+                            <small>{{ transaction.to_address }}</small>
+                        </dd>
+
+                        <dt class="col-sm-4">Amount</dt>
+                        <dd class="col-sm-8">{{ transaction.amount }} ETH</dd>
+
+                        <dt class="col-sm-4">Gas Price</dt>
+                        <dd class="col-sm-8">{{ transaction.gas_price }} Gwei</dd>
+
+                        {% if receipt %}
+                        <dt class="col-sm-4">Block Number</dt>
+                        <dd class="col-sm-8">{{ receipt.block_number }}</dd>
+
+                        <dt class="col-sm-4">Gas Used</dt>
+                        <dd class="col-sm-8">{{ receipt.gas_used }}</dd>
+
+                        <dt class="col-sm-4">Confirmations</dt>
+                        <dd class="col-sm-8">{{ receipt.confirmations }}</dd>
+
+                        <dt class="col-sm-4">Timestamp</dt>
+                        <dd class="col-sm-8">
+                            {{ receipt.timestamp|date:"Y-m-d H:i:s" }}
+                        </dd>
+                        {% endif %}
+                    </dl>
+
+                    <div class="mt-4">
+                        <a href="{% url 'transaction_history' %}" class="btn btn-secondary">
+                            Back to Transactions
+                        </a>
+                        <a href="{% url 'wallet_dashboard' %}" class="btn btn-primary">
+                            Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

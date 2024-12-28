@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Multi-Signature Transaction{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Multi-Signature Transaction Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Transaction Hash</dt>
+                        <dd class="col-sm-8">{{ multisig.transaction.tx_hash }}</dd>
+                        
+                        <dt class="col-sm-4">Amount</dt>
+                        <dd class="col-sm-8">{{ multisig.transaction.amount }} ETH</dd>
+                        
+                        <dt class="col-sm-4">Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-{{ multisig.transaction.status }}">
+                                {{ multisig.transaction.get_status_display }}
+                            </span>
+                        </dd>
+                        
+                        <dt class="col-sm-4">Required Signatures</dt>
+                        <dd class="col-sm-8">{{ multisig.current_signatures }} / {{ multisig.required_signatures }}</dd>
+                        
+                        <dt class="col-sm-4">Expires</dt>
+                        <dd class="col-sm-8">{{ multisig.expires_at|date:"Y-m-d H:i" }}</dd>
+                    </dl>
+
+                    <h6 class="mt-4">Signatures</h6>
+                    <ul class="list-group">
+                        {% for signature in multisig.transactionsignature_set.all %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small>{{ signature.signer.address }}</small>
+                                <span class="text-muted">{{ signature.signed_at|date:"Y-m-d H:i" }}</span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    {% if can_sign %}
+                    <form method="post" action="{% url 'sign_multisig' tx_hash=multisig.transaction.tx_hash %}" class="mt-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Sign Transaction</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
